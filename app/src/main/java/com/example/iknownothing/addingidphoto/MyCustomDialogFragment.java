@@ -1,10 +1,12 @@
 package com.example.iknownothing.addingidphoto;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -29,14 +31,12 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 
-import javax.xml.transform.Source;
 
 public class MyCustomDialogFragment extends DialogFragment {
 
-    private Uri FrontImageUri;
+    String file;
+    private Uri FrontImageUri,mCropImageUri;
     private Uri RearImageUri;
     private Uri ImageUri;
     TextView front, rear;
@@ -71,6 +71,11 @@ public class MyCustomDialogFragment extends DialogFragment {
 
     }
 
+    private void startCropImageActivity(Uri resultUri) {
+        CropImage.activity()
+                .start(getActivity());
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -91,9 +96,13 @@ public class MyCustomDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 CHECK = 0;
 
-                CropImage.activity(ImageUri)
+             /*   CropImage.activity(ImageUri)
                         .setAspectRatio(2, 3)
-                        .setCropShape(CropImageView.CropShape.RECTANGLE).start(getActivity());
+                        .setCropShape(CropImageView.CropShape.RECTANGLE).start(getActivity());*/
+
+                Intent intent = CropImage.activity(ImageUri)
+                        .getIntent(getActivity());
+                startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
                 //ShowDialogBox showDialogbox = new ShowDialogBox(getContext());
                 //showDialogbox.show();
                 //OpenGallery();
@@ -108,9 +117,19 @@ public class MyCustomDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 CHECK = 1;
 
-                CropImage.activity(ImageUri)
+                CropImage.startPickImageActivity(getActivity());
+                /*CropImage.activity(ImageUri)
                         .setAspectRatio(2, 3)
                         .setCropShape(CropImageView.CropShape.RECTANGLE).start(getActivity());
+
+                */
+                /*Intent intent = CropImage.activity(ImageUri)
+                        .getIntent(getActivity());
+                startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
+               */
+
+
+
                 //ShowDialogBox showDialogbox = new ShowDialogBox(getContext());
                 //showDialogbox.show();
 
@@ -214,29 +233,44 @@ public class MyCustomDialogFragment extends DialogFragment {
 
 
         //THIS CHECKS WHETHER WE SELECT THE CROP OPTION...
-        if(requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        if(requestCode==CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             //HERE WE GETTING CROPPED IMAGE...
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            //CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            if(resultCode == Activity.RESULT_OK)
-            {
-                Uri resultUri = result.getUri();
-                Log.d("result",resultUri.toString());
+
+                Uri resultUri = CropImage.getPickImageResultUri(getContext(),data);
+            if (CropImage.isReadExternalStoragePermissionsRequired(getContext(), resultUri)) {
+                // request permissions and handle the result in onRequestPermissionsResult()
+                mCropImageUri = resultUri;
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},   CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE);
+            } else {
+                // no permissions required or already granted, can start crop image activity
+                startCropImageActivity(resultUri);
+            }
+
+
+               // Log.d("result",resultUri.toString());
                 Log.d("result",resultUri.getPath());
 
+                File f =new File(resultUri.getPath());
+
+                file = f.getAbsolutePath();
 
                 //GETTING THE ACTUAL NAME OF THE FILE....
                 String filename = getFileName(resultUri);
                 //Log.d("result",ImageUri.toString());
-                //Log.d("result",ImageUri.getPath());
+                Log.d("result",filename);
 
+
+                Log.d("result",f.length()/(1024*1024)+"");
+                //Log.d("result",f.getUsableSpace()/(1024*1024)+"");
                 //CHECKING THE FILE SIZE, IF IT IS MORE THAN 5MB CHOOSE ANOTHER ONE...
-                float size = Float.valueOf(this.size)/(1024*1024);
+                float sizes = Float.valueOf(size)/(1024*1024);
 
                 Log.d("result",filename);
                 Log.d("result",size+"");
 
-                if(size > 5.0)
+                if(sizes > 5.0)
                 {
                     Toast.makeText(getActivity(),"Image Size is more then 5 MB",Toast.LENGTH_SHORT).show();
                 }
@@ -271,11 +305,22 @@ public class MyCustomDialogFragment extends DialogFragment {
             {
                 Toast.makeText(getActivity(),"Select Image Again",Toast.LENGTH_SHORT).show();
             }
+
+
+
+
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE) {
+            if (mCropImageUri != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // required permissions granted, start crop image activity
+                startCropImageActivity(mCropImageUri);
+            } else {
+                Toast.makeText(getActivity(), "Cancelling, required permissions are not granted", Toast.LENGTH_LONG).show();
+            }
         }
-
-
-
-
     }
 
     //Getting file name and its size using CURSOR class.....
@@ -297,7 +342,10 @@ public class MyCustomDialogFragment extends DialogFragment {
             result = uri.getPath();
             int cut = result.lastIndexOf('/');
             if (cut != -1) {
+
                 result = result.substring(cut + 1);
+                File f = new File(file+"/"+result);
+                size = f.length() / (1024*1024)+"";
             }
         }
         return result;
