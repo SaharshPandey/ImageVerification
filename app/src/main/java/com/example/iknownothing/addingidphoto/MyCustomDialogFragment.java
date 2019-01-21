@@ -35,6 +35,7 @@ import java.io.File;
 
 public class MyCustomDialogFragment extends DialogFragment {
 
+
     String file;
     private Uri FrontImageUri,mCropImageUri;
     private Uri RearImageUri;
@@ -65,6 +66,7 @@ public class MyCustomDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+
         View v = inflater.inflate(R.layout.fragment_dialog, container, false);
 
         return v;
@@ -74,6 +76,10 @@ public class MyCustomDialogFragment extends DialogFragment {
     private void startCropImageActivity(Uri resultUri) {
         CropImage.activity()
                 .start(getActivity());
+    }
+
+    public void onSelectImageClick(View view) {
+        CropImage.startPickImageActivity(getActivity());
     }
 
     @Override
@@ -96,13 +102,15 @@ public class MyCustomDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 CHECK = 0;
 
+                onSelectImageClick(view);
+
              /*   CropImage.activity(ImageUri)
                         .setAspectRatio(2, 3)
                         .setCropShape(CropImageView.CropShape.RECTANGLE).start(getActivity());*/
 
-                Intent intent = CropImage.activity(ImageUri)
+               /* Intent intent = CropImage.activity(ImageUri)
                         .getIntent(getActivity());
-                startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);
+                startActivityForResult(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE);*/
                 //ShowDialogBox showDialogbox = new ShowDialogBox(getContext());
                 //showDialogbox.show();
                 //OpenGallery();
@@ -117,7 +125,7 @@ public class MyCustomDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 CHECK = 1;
 
-                CropImage.startPickImageActivity(getActivity());
+                startCropImageActivity(ImageUri);
                 /*CropImage.activity(ImageUri)
                         .setAspectRatio(2, 3)
                         .setCropShape(CropImageView.CropShape.RECTANGLE).start(getActivity());
