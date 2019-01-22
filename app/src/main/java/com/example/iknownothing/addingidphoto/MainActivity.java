@@ -1,6 +1,7 @@
 package com.example.iknownothing.addingidphoto;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        addPhotos =findViewById(R.id.add_photos);
+        addPhotos = findViewById(R.id.add_photos);
         addPhotos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -32,12 +33,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showEditDialog()
-    {
-        FragmentManager  fm = getSupportFragmentManager();
+    private void showEditDialog() {
+        FragmentManager fm = getSupportFragmentManager();
         MyCustomDialogFragment myCustomDialogFragment = MyCustomDialogFragment.newInstance("Verifying....");
-        myCustomDialogFragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Theme_AppCompat_Light_Dialog);
-        myCustomDialogFragment.show(fm,"fragment_dialog");
+        myCustomDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_AppCompat_Light_Dialog);
+        myCustomDialogFragment.show(fm, "fragment_dialog");
     }
 
 
@@ -45,11 +45,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-            fragment.onActivityResult(requestCode, resultCode, data);
-        }
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("fragment_dialog");
+        fragment.onActivityResult(requestCode, resultCode, data);
+
         Toast.makeText(getApplicationContext(), "lkwmlasjd", Toast.LENGTH_SHORT).show();
 
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("fragment_dialog");
+        fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
     }
 }
