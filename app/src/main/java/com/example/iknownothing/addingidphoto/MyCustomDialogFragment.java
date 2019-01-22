@@ -62,6 +62,7 @@ public class MyCustomDialogFragment extends DialogFragment {
 
     }
 
+    //instance of dialog fragment.....
     public static MyCustomDialogFragment newInstance(String title) {
         MyCustomDialogFragment fragment = new MyCustomDialogFragment();
         Bundle args = new Bundle();
@@ -74,13 +75,8 @@ public class MyCustomDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
         View v = inflater.inflate(R.layout.fragment_dialog, container, false);
-
-
         return v;
-
     }
 
 
@@ -94,8 +90,8 @@ public class MyCustomDialogFragment extends DialogFragment {
         front_add = view.findViewById(R.id.front_add);
         rear_add = view.findViewById(R.id.rear_add);
 
-        front_add.setVisibility(View.GONE);
-        rear_add.setVisibility(View.GONE);
+        front_add.setVisibility(View.INVISIBLE);
+        rear_add.setVisibility(View.INVISIBLE);
 
         upload = view.findViewById(R.id.upload);
         getDialog().setTitle("Verify yourself!!!");
@@ -191,18 +187,14 @@ public class MyCustomDialogFragment extends DialogFragment {
     }
 
 
-    //Getting the on Activity Result....
-
+    //Getting the on Activity Result from MainActivity onActivityResult....
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Toast.makeText(getActivity(), "called", Toast.LENGTH_SHORT).show();
+        Log.d("result", "onActivityResult called");
 
-        Log.d("result", "11111");
-
-
-        //handle resuult of pick image chooser...
+        //handle result of pick image chooser...
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             //HERE WE GETTING CROPPED IMAGE...
             Uri resultUri = CropImage.getPickImageResultUri(getContext(), data);
@@ -269,26 +261,14 @@ public class MyCustomDialogFragment extends DialogFragment {
                             //content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
 
 
-                            //Checking from which button the photo has been added ....
-                            if (clicked == 0) {
-                                front.setText("Front_Image.jpg");
-                                front_add.setText("EDIT");
-                                front_add.setVisibility(View.VISIBLE);
-                                front.setClickable(false);//disabling the textview click listener..
+                            front.setText("Front_Image.jpg");
+                            front_add.setVisibility(View.VISIBLE);
+                            front.setClickable(false);//disabling the textview click listener..
 
-                                FrontImageUri = ImageUri;
-                            } else if (clicked == 1) {
-                                rear.setText("Back_Image.jpg");
-                                rear_add.setText("EDIT");
-                                rear_add.setVisibility(View.VISIBLE);
-                                rear.setClickable(false);//disabling the textview click listener..
-
-                                RearImageUri = ImageUri;
-                            }
-
-                            Toast.makeText(getActivity(), "Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
-
+                            FrontImageUri = ImageUri;
                         }
+
+                        Toast.makeText(getActivity(), "Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
 
 
                     }
@@ -339,79 +319,20 @@ public class MyCustomDialogFragment extends DialogFragment {
                             content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
 
 
-                            //Checking from which button the photo has been added ....
-                            if (clicked == 0) {
-                                front.setText(content);
-                                front.setTextColor(Color.BLUE);
-                                front_add.setText("EDIT");
+                            rear.setText("Back_Image.jpg");
+                            rear_add.setVisibility(View.VISIBLE);
+                            rear.setClickable(false);//disabling the textview click listener..
 
+                            RearImageUri = ImageUri;
 
-                                FrontImageUri = ImageUri;
-                            } else if (clicked == 1) {
-                                rear.setText(content);
-                                rear.setTextColor(Color.BLUE);
-                                rear_add.setText("EDIT");
-
-                                RearImageUri = ImageUri;
-                            }
-
-                            Toast.makeText(getActivity(), "Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
                         }
+
+                        Toast.makeText(getActivity(), "Uploaded Successfully !!", Toast.LENGTH_SHORT).show();
 
                     }
 
                 }
 
-
-
-                /*    Uri resultUri = result.getUri();
-                    // Log.d("result",resultUri.toString());
-                    Log.d("result", resultUri.getPath());
-
-                    File f = new File(resultUri.getPath());
-
-                    file = f.getAbsolutePath();
-
-                    //GETTING THE ACTUAL NAME OF THE FILE....
-                    String filename = getFileName(resultUri);
-
-                    Log.d("result", file + " - absolute path");
-                    Log.d("result", filename + " - filename");
-
-
-                    filesize = Float.valueOf(f.length() / (1024 * 1024));
-                    Log.d("result", filesize + "MB - SIZE");
-                    //Log.d("result",f.getUsableSpace()/(1024*1024)+"");
-                    //CHECKING THE FILE SIZE, IF IT IS MORE THAN 5MB CHOOSE ANOTHER ONE...
-                    float sizes = Float.valueOf(size) / (1024 * 1024);
-
-
-                    if (filesize > 5.0) {
-                        Toast.makeText(getActivity(), "Image Size is more then 5 MB", Toast.LENGTH_SHORT).show();
-                    } else {
-                        //TO ADD UNDERLINE IN THE TEXTVIEW......
-                        SpannableString content = new SpannableString(filename);
-                        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-
-
-                        //Checking from which button the photo has been added ....
-                        if (CHECK == 0) {
-                            front.setText(content);
-                            front.setTextColor(Color.BLUE);
-                            front_add.setText("EDIT");
-
-
-                            FrontImageUri = ImageUri;
-                        } else if (CHECK == 1) {
-                            rear.setText(content);
-                            rear.setTextColor(Color.BLUE);
-                            rear_add.setText("EDIT");
-
-                            RearImageUri = ImageUri;
-                        }
-
-
-                    }*/
             }
 
 
@@ -421,29 +342,29 @@ public class MyCustomDialogFragment extends DialogFragment {
         }
     }
 
+    //called by main activity onRequestPermissionsResult method....
     public void onRequestPermissionsResult(int requestCode, String permissions[],
                                            int[] grantResults) {
 
         Log.d("result", "OnRequestPermission called");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        Log.d("result", "OnRequestPermission called");
 
         switch (requestCode) {
             case EXTERNAL_STORAGE_CODE: {
-                Log.d("result", "OnRequestPermission called");
+                Log.d("result", "permission for storage called");
 
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    Log.d("result", "OnRequestPermission called");
+                    Log.d("result", "storage permission granted");
 
                     onSelectImageClick(getView());
 
                 } else {
-                    Log.d("result", "OnRequestPermission called");
+                    Log.d("result", "permission denied by user");
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -463,7 +384,7 @@ public class MyCustomDialogFragment extends DialogFragment {
         }
     }
 
-    //Getting file name and its size using CURSOR class.....
+  /*  //Getting file name and its size using CURSOR class.....
     public String getFileName(Uri uri) {
         String result = null;
 
@@ -490,17 +411,20 @@ public class MyCustomDialogFragment extends DialogFragment {
         }
         return result;
     }
+*/
 
-
+    //start the cropping activity...
     private void startCropImageActivity(Uri resultUri) {
         CropImage.activity(resultUri)
                 .start(getActivity());
     }
 
+    //open the dialog to select images from gallery or camera....
     public void onSelectImageClick(View view) {
         CropImage.startPickImageActivity(getActivity());
     }
 
+    //this method scaledown the image in its size...
     public Bitmap scaleDown(Bitmap realImage, float maxImageSize, boolean filter) {
 
         float ratio = Math.min((float) maxImageSize / realImage.getWidth(), (float) maxImageSize / realImage.getHeight());
@@ -520,6 +444,7 @@ public class MyCustomDialogFragment extends DialogFragment {
         }
     }
 
+    //this method is to store the cropped image to khaalijeb folder...
     private void saveImageToExternalStorage(Bitmap finalBitmap) {
         String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
         File myDir = new File(root + "/Khaalijeb");
@@ -580,7 +505,7 @@ public class MyCustomDialogFragment extends DialogFragment {
 
     }
 
-
+    //checking the write permissions.....
     private boolean isReadStorageAllowed() {
         //Getting the permission status
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -598,6 +523,7 @@ public class MyCustomDialogFragment extends DialogFragment {
         }
     }
 
+    //requesting the storage permissions by calling onRequestPermissionResults....
     public void requestStoragePermission() {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {

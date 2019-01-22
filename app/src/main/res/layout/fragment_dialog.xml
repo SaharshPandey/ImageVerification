@@ -19,6 +19,7 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:weightSum="2"
+        android:layout_marginBottom="5dp"
         >
 
         <TextView
@@ -37,12 +38,17 @@
         <Button
             android:layout_width="60dp"
             android:layout_height="40dp"
-            android:text="Edit"
+            android:text="@string/edit"
             android:textAllCaps="false"
             android:id="@+id/front_add"
             android:elevation="0dp"
             android:background="@android:color/white"
             android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:selectAllOnFocus="false"
+            android:linksClickable="false"
+            android:autoLink="all"
+
             />
 
     </LinearLayout>
@@ -70,12 +76,18 @@
         <Button
             android:layout_width="60dp"
             android:layout_height="40dp"
-            android:text="Edit"
+            android:text="@string/edit"
             android:textAllCaps="false"
             android:id="@+id/rear_add"
             android:elevation="0dp"
             android:background="@android:color/white"
             android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:selectAllOnFocus="false"
+            android:linksClickable="false"
+            android:autoLink="all"
+
+
             />
 
     </LinearLayout>

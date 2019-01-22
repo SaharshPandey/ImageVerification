@@ -10,9 +10,13 @@
         android:id="@+id/add_photos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Photos!"
+        android:text="Verify Yourself!"
         android:layout_centerInParent="true"
         android:gravity="center"
+        android:background="@color/colorPrimary"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:padding="10dp"
          />
 
 
