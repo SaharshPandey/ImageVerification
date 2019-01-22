@@ -19,7 +19,9 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.BitmapCompat;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
@@ -51,6 +53,7 @@ public class MyCustomDialogFragment extends DialogFragment {
     Button front_add, rear_add, upload;
     String size;
     long filesize;
+    final int EXTERNAL_STORAGE_CODE = 100;
     public MyCustomDialogFragment() {
         //Empty Constructor is required for Dialog Fragment...
 
@@ -72,6 +75,7 @@ public class MyCustomDialogFragment extends DialogFragment {
 
         View v = inflater.inflate(R.layout.fragment_dialog, container, false);
 
+
         return v;
 
     }
@@ -92,12 +96,23 @@ public class MyCustomDialogFragment extends DialogFragment {
         getDialog().setTitle("Verify yourself!!!");
 
 
+
         front_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 clicked = 0;
 
-                onSelectImageClick(view);
+                if (isReadStorageAllowed()) {
+
+                    onSelectImageClick(getView());
+
+                } else {
+
+                    requestStoragePermission();
+
+
+                }
+
 
 
             }
@@ -109,7 +124,18 @@ public class MyCustomDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 clicked = 1;
 
-                onSelectImageClick(view);
+
+                if (isReadStorageAllowed()) {
+
+                    onSelectImageClick(getView());
+
+                } else {
+
+                    requestStoragePermission();
+
+
+                }
+
 
             }
         });
@@ -140,7 +166,7 @@ public class MyCustomDialogFragment extends DialogFragment {
             //HERE WE GETTING CROPPED IMAGE...
             Uri resultUri = CropImage.getPickImageResultUri(getContext(), data);
 
-            if (CropImage.isReadExternalStoragePermissionsRequired(getContext(), resultUri)) {
+            if (CropImage.isReadExternalStoragePermissionsRequired(getContext(), resultUri) ) {
                 // request permissions and handle the result in onRequestPermissionsResult()
                 mCropImageUri = resultUri;
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE);
@@ -357,7 +383,27 @@ public class MyCustomDialogFragment extends DialogFragment {
 
         public void onRequestPermissionsResult ( int requestCode, String permissions[],
         int[] grantResults){
-            if (requestCode == CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE) {
+
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+
+        switch (requestCode){
+            case EXTERNAL_STORAGE_CODE:{
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    onSelectImageClick(getView());
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity(),"Permission Denied",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            case CropImage.PICK_IMAGE_PERMISSIONS_REQUEST_CODE: {
                 if (mCropImageUri != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // required permissions granted, start crop image activity
                     startCropImageActivity(mCropImageUri);
@@ -365,6 +411,7 @@ public class MyCustomDialogFragment extends DialogFragment {
                     Toast.makeText(getActivity(), "Cancelling, required permissions are not granted", Toast.LENGTH_LONG).show();
                 }
             }
+        }
         }
 
         //Getting file name and its size using CURSOR class.....
@@ -483,6 +530,39 @@ public class MyCustomDialogFragment extends DialogFragment {
                     });
         }
 
+    }
+
+
+    private boolean isReadStorageAllowed() {
+        //Getting the permission status
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        int result = ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        //If permission is granted returning true
+        if (result == PackageManager.PERMISSION_GRANTED)
+
+            return true;
+
+        //If permission is not granted returning false
+        return false;
+    }
+    else{
+            return true;
+        }
+    }
+
+    public void requestStoragePermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            //If the user has denied the permission previously your code will come to this block
+            //Here you can explain why you need this permission
+            //Explain here why you need this permission
+            Log.d("scancode", "denied permission before");
+        }
+
+        Log.d("perm", "fourth");
+        //And finally ask for the permission
+        ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_CODE);
     }
 
 
